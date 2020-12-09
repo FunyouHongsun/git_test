@@ -15,20 +15,48 @@
 		<p>
 		 git是一个用于帮助用户实现版本控制的软件。
 		
-		命令：
-			git init      初始化文件夹为git管辖
+		基础命令：
+			git init			初始化文件夹为git管辖
 			
 			git status 			查看当前文件夹的状态。
 			git add 文件名		对指定文件进行版本控制
 			git add .    		对指定文件夹下的所有文件及子目录进行版本控制
-			git commit -m '详细的描述信息' 创建提交记录（版本）
+			git commit -m '详细的描述信息'    创建提交记录（版本）
 			
-			git log 
-			git reflog 
+			git log				查看当前版本及以前的提交记录
+			git reflog			查看所有的提交几率
 			
-			git reset --hard 提交记录（版本号）
+			git reset --hard 提交记录（版本号 -> git log/reflog 中显示）
+
+		高阶命令：
+			1. 当开发过程中，临时需要修复bug或临时有新功能加入！
+
+			方式一：stash  缓存
+
+				-作用：帮助我们暂时存储已经开发的一些功能，继续做其他事情，做完后，再回来继续开发。
+				-具体命令：
+
+					git stash    将当前工作区所有的修改过的内容，存储到“某个地方”，将工作区还原到当前版本未修改过的状态。
+
+					git stash pop 将一个记录从“某个地方”，重新拿到工作区（可能有冲突）
+
+					git stash list			查看“某个地方”存储的所有记录
+					
+					git stash clear			清空“某个地方”
+					git stash apply ‘编号’  将制定编号的一条记录，从“某个地方”重新拿到工作区（可能有冲突）
+					git stash drop  '编号‘  删除指定编号的记录。
+
+			方式二：branch  分支
+
+					git branch 
+					git branch dev
+					git branch bug
+					git branch -d bug
+					git checkout dev
+					git merge bug
 		</p>
 	</ul>
 	<li>版本四</li>
+	<li>版本五</li>
 </body>
 </html>

@@ -54,7 +54,29 @@
 					git branch -d bug	删除分支bug
 					git checkout dev	切换到分支dev
 					git merge bug		在当前分支（一般是主分支master）合并bug分支
-			
+			2).代码托管
+				使用知名的代码托管网站：github、Bitbucket、码云
+				自己创建一个代码托管的网站：gitlab
+
+				步骤：
+					第一步 注册 一般用邮箱做账号
+					第二步 创建git仓库
+
+				客户端使用:命令
+					第一步：克隆仓库到本地
+						git clone ‘https://github.com/FunyouHongsun/git_test.git’
+					第二步：
+						git remote add origin 'git仓库的地址'
+						git push origin dev  	将dev分支推（上传）到git仓库中
+							-相当于执行下列两步
+							git fetch origin dev
+							git merge origin/dev
+
+						git pull orgin dev    拉取（下载）仓库中的dev分支的代码
+							- 相当于执行了：
+							git fetch origin dev
+							git merge origin/dev 
+							两个命令
 		</p>
 	</ul>
 	<li>版本四</li>

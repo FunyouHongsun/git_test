@@ -1,0 +1,181 @@
+	1. Http协议？
+		Http协议就是一个传输数据格式。
+		
+		我原来学习django框架，从socket服务端开始学起。
+		自己创造了一个socket服务器来充当：网站。
+		浏览器当socket客户端。
+		更清楚的明白到底http协议是什么？
+			- 请求头 请求头
+			- 响应头 响应头
+		
+		一次请求响应后，断开连接。
+	2. 常见请求头 
+		
+	3. 常见的请求体？
+		Form表单提交：
+			POST /index http1.1\r\nhost:www.luffycity.com...\r\n\r\nusername=alex&password=123&...
+		Ajax请求：
+			POST /index http1.1\r\nhost:www.luffycity.com...\r\n\r\nusername=alex&password=123&...
+			POST /index http1.1\r\nhost:www.luffycity.com...\r\n\r\n{“username”:"alex","password":123}
+			
+		补充：django中获取请求体
+			- request.POST 
+			- request.body 
+			
+	4. django请求生命周期
+		- wsgi, 他就是socket服务端，用于接收用户请求并将请求进行初次封装，然后将请求交给web框架（Flask、Django）
+		- 中间件，帮助我们对请求进行校验或在请求对象中添加其他相关数据，例如：csrf、request.session 
+		- 路由匹配 
+		- 视图函数，在视图函数中进行业务逻辑的处理，可能涉及到：orm、templates => 渲染
+		- 中间件，对响应的数据进行处理。
+		- wsgi,将响应的内容发送给浏览器。
+		
+	5. 中间件
+		- 5个方法 
+		- 应用场景：
+			- 登录认证，不再需要在每个函数中添加装饰器
+			- 权限，当用户登录时候获取当前用户所有权限并放入session，然后再次访问其他页面，获取当前url并在session中进行匹配。如果没有匹配成功，则在中间件返回“无权访问”
+			- 跨域，
+					- jsonp，动态创建一个script标签。
+					- cors，设置响应头
+					应用：本地开始前后端分离的时使用。
+		
+	6. ORM操作
+		- only
+		- defer
+		- seleted_related
+		- prefetch_related
+	
+		示例：
+			class Depart(models.Model): 5个部门
+				title = models.CharField(...)
+
+			class User(models.Model):   10个用户
+				name = models.CharField(...)
+				email = models.CharField(...)
+				dp = models.FK(Depart)
+
+			1.以前的你：11次单表查询
+
+				result = User.objects.all()
+				for item in result:
+					print(item.name,item.dp.title)
+
+			2. seleted_related，主动做连表查询（1次链表）
+
+				result = User.objects.all().seleted_related('dp')
+				for item in result:
+					print(item.name,item.dp.title)
+
+				问题：如果链表多，性能越来越差。
+
+			3. prefetch_related：2次单表查询
+				# select * from user ;
+				# 通过python代码获取：dp_id = [1,2]
+				# select * from depart where id in dp_id
+				result = User.objects.all().prefetch_related('dp')
+				for item in result:
+					print(item.name,item.dp.title)
+
+		
+		赠送：
+			数据量比较大，不会使用FK，允许出现数据冗余。
+		
+
+	7. django rest framework的作用？
+		快速搭建基于restful规范的接口。
+	
+
+	8. 你理解的 restful 规范？
+		restful是一个规范，规定API如何编写，通过他可以让我们api更加简洁可维护。
+		如，最直观的：
+			method：
+				- get
+				- post 
+				- put 
+				- delete 
+			
+			原来都是url中设置的。
+		除此之外：
+			- api
+			- 版本
+			- 名词
+			- 条件
+			- 状态码
+			- 返回值
+			- 错误信息
+			- hypermedia link 
+	
+
+	9. django rest framework组件：
+		- 路由
+			- 可以通过as_view传参数，根据请求方式的不同执行相应的方法。
+			- 可以在url中设置一个结尾，类似于：.json
+
+		- 解析器
+			- 根据ContentType请求体，对请求体中的数据进行解析
+				- 不同的解析器
+					- JsonParser  Content-Type:application/json
+
+		- 分页
+			- 对数据库中获取到的数据进行分页处理： SQL -> limit offset
+				- 根据页码
+					- 例如：http://www.luffycity.com/api/v1/students/?page=1&size=10
+				- 根据索引
+					- 例如：http://www.luffycity.com/api/v1/students/?offset=60&limit=10
+				- 根据加密
+					- 防止有人用分页url，直接修改分页参数
+					- 例如：http://www.luffycity.com/api/v2/student/?page=xmsbT1&size=bTsdf8
+
+			- 延伸问题：
+				- 页码越大速度越慢，为什么？如何解决？
+					- 页码越大，向后需要扫描的行数越多，因为每次都是从0开始扫描；
+					- 解决：
+						- 限制显示的页数，如总共有3000多页，只显示180页！
+						- 记录当前页数据id的最大值和最小值，再次分页时，根据id进行筛选，然后再分页！
+
+		- 视图
+			- 帮助开发者提供一些类，并在类中提供多个方法供我们使用。
+
+		- 版本
+			- 在url中设置version参数，用户请求时候传入参数，在request.version中获取版本，视图中可以根据版本不同做不同处理！
+
+		- 认证
+			- 写一个类继承BaseAuthtication,然后注册到需要认证的类中。
+				- 该类的authticate方法中，写认证的逻辑
+					- 认证成功返回一个元组，如登录认证返回(user, auth)
+					- 认证失败，抛异常：raise AuthticateFailder
+					- None  匿名用户
+					
+
+		- 权限
+			- 写一个类注册到权限类，在类的has_permission方法中写权限逻辑。
+				- 返回True 有该权限
+				- 返回False 没有该权限
+
+
+		- 访问频率控制原理：
+			- 写一个类，并注册到频率类，在类中提供allow_request / wait 方法中编写频率控制逻辑。
+
+				- allow_request
+					- True
+					- False 如果返回False，那么就执行wait。
+			匿名：
+				1.1.1.1:[时间,时间,时间,时间,]
+			登录：
+				user:[时间,时间,时间,时间,] 
+			
+			默认将访问记录放在缓存中：redis/memcached
+
+
+		- 序列化
+			from rest_framework.serializers import Serializer
+
+			class XX(Serializer):
+				pass
+			ser =XX(queryset,many=True) # ListSerializer对象
+			ser =XX(obj, many=False)    # XX对象
+				
+		- 列表生成式 
+		
+		- 根据字符串的形式，自动导入模块并使用反射找到模块中的类【参考：s9day108】。
